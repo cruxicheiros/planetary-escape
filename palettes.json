@@ -1,0 +1,25 @@
+{
+"TidalPlainPalette" : {
+"AMBIENT" : "waves",
+"ENVIRONMENTAL" : "wind",
+"FOOTSTEP" : "wet_sand"
+},
+
+"VolcanicPalette" : {
+"AMBIENT" : "fire",
+"ENVIRONMENTAL" : "rumbling",
+"FOOTSTEP" : "rock"
+},
+
+"PumicePalette" : {
+"AMBIENT" : "wind",
+"ENVIRONMENTAL" : "rumbling",
+"FOOTSTEP" : "gravel"
+},
+
+"IndoorsPalette" : {
+"AMBIENT" : "air_conditioning",
+"ENVIRONMENTAL" : "flourescent_lighting",
+"FOOTSTEP" : "tile"
+}
+}
