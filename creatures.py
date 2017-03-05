@@ -20,6 +20,10 @@ class Human(AudioSource):
         AudioSource.__init__(self, pos)
         self.name = name
 
+class Enemy(AudioSource):
+    def __init__(self, pos, name):
+        AudioSource.__init__(self, pos)
+        self.name = name
         
         
 class NPC(Human):

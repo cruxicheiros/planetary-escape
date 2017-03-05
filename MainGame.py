@@ -38,7 +38,7 @@ def load_palette(palette_name):
     
     footstep_names = os.listdir(dir_path + '\\SFX\\palette\\footsteps\\' + palette_dict[palette_name]['FOOTSTEP'])
     for i in footstep_names:
-        footstep = pygame.mixer.Sound(dir_path + '\\SFX\\' + 'palette\\footsteps\\' + palette_dict[palette_name]['FOOTSTEP'] + '\\' + i)
+        footstep = pygame.mixer.Sound(dir_path + '\\SFX\\palette\\footsteps\\' + palette_dict[palette_name]['FOOTSTEP'] + '\\' + i)
         footsteps.append(footstep)
         
     
@@ -90,6 +90,21 @@ def PlayEventSounds(event, current_palette):
         PlayAmbientSounds(current_palette)
         
 
+def LoadEntitySounds(entities):
+    entity_sounds = {}
+    for entity in entities:
+        if entity not in entity_sounds:
+            entity_sounds[entity.name] = []
+            front_sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name + '\\front')
+            back_sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name + '\\back')
+            
+            for i in range(len(front_sound_names) - 1):
+                front_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\front\\' + front_sound_names[i])
+                back_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\back\\' + back_sound_names[i])
+                entity_sounds[entity.name].append([front_sound, back_sound])
+                
+    return entity_sounds
+        
 #Play looped sounds
 def PlayAmbientSounds(current_palette):
     ambient_channel.play(current_palette.ambient, loops = -1)
@@ -97,15 +112,22 @@ def PlayAmbientSounds(current_palette):
     
 #### Main Loop
         
-def MainLoop():
+def MainLoop():    
     map = LoadMap('data')
     current_tile = map.tiles[(0, 0)]
     avatar = creatures.AudioSource([0,0])
     current_palette = load_palette('TidalPlainPalette')
     PlayAmbientSounds(current_palette)
 
+    entities = [creatures.Enemy((0, 0), 'zombie')]
+    entity_sounds = LoadEntitySounds(entities)
+        
 
     while 1:
+        for entity in entities:
+            if randint(1, 10000) > 9990:
+                Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), entity.pos, avatar.pos)).play()
+            
         current_fields = GetFieldsAtLocation(current_tile, avatar.pos)
         #clock.tick(60)
         
