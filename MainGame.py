@@ -51,16 +51,6 @@ def load_palette(palette_name):
     return new_palette
     
 #Map related
-
-
-def GetFieldsAtLocation(tile, pos):
-    fields_at_location = []
-    
-    for field in tile.fields:
-        if pos[0] in range(field.anchor[0], field.anchor[0] + field.dimensions[0]) and pos[1] in range(field.anchor[1], field.anchor[1] + field.dimensions[1]):
-            fields_at_location.append(field)
-            
-    return fields_at_location
             
 
 def LoadMap(fname):
@@ -138,7 +128,7 @@ def MainLoop():
                 
                 Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), absolute_entity_position, absolute_avatar_position)).play()
             
-        current_fields = GetFieldsAtLocation(avatar.tile, avatar.pos)
+        current_fields = avatar.tile.FieldsAtLocation(avatar.pos)
         
         events = pygame.event.get()
         for event in events:

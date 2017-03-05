@@ -32,7 +32,17 @@ class Tile:
                 print(row)
                     
             print(f.name + ', clipping =', f.clipping, ', teleport =', f.teleport)
-            print('\n\n\n')        
+            print('\n\n\n')
+
+    def FieldsAtLocation(self, pos):
+        fields_at_location = []
+    
+        for field in self.fields:
+            if pos[0] in range(field.anchor[0], field.anchor[0] + field.dimensions[0]) and pos[1] in range(field.anchor[1], field.anchor[1] + field.dimensions[1]):
+                fields_at_location.append(field)
+            
+        return fields_at_location
+
 class Map:
     def __init__(self, width = 4, height = 4, name='unnamed map'):
         self.width = width

@@ -49,6 +49,11 @@ class AudioSource:
                     print('Could not move to that position')
                     return
 
+            for i in map.tiles[(move_to['tile'][0], move_to['tile'][1])].FieldsAtLocation(move_to['position']):
+                if i.clipping == True:
+                    print('Could not move to that position (clipping)')
+                    return
+            
             self.pos = move_to['position']
             self.tile = map.tiles[(move_to['tile'][0], move_to['tile'][1])]
 
