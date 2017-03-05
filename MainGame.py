@@ -115,21 +115,26 @@ def PlayAmbientSounds(current_palette):
 def MainLoop():    
     map = LoadMap('data')
     current_tile = map.tiles[(0, 0)]
-    avatar = creatures.AudioSource([0,0])
+    avatar = creatures.AudioSource([0,0], [0,0])
     current_palette = load_palette('TidalPlainPalette')
     PlayAmbientSounds(current_palette)
+    clock = pygame.time.Clock()
 
-    entities = [creatures.Enemy((0, 0), 'zombie')]
+    entities = [creatures.Enemy([0, 0], [0, 0], 'zombie'), creatures.Enemy([3, 3], [0, 0], 'zombie')]
     entity_sounds = LoadEntitySounds(entities)
         
 
     while 1:
+        clock.tick(30)
+        
         for entity in entities:
-            if randint(1, 10000) > 9990:
-                Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), entity.pos, avatar.pos)).play()
+            if randint(1, 10) > 9:
+                absolute_entity_position = ((entity.tile[0]*current_tile.width + entity.pos[0]), (entity.tile[1]*current_tile.height + entity.pos[1]))
+                absolute_avatar_position = ((current_tile.pos[0]*current_tile.width + avatar.pos[0]), (current_tile.pos[1]*current_tile.height + avatar.pos[1]))
+                
+                Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), absolute_entity_position, absolute_avatar_position)).play()
             
         current_fields = GetFieldsAtLocation(current_tile, avatar.pos)
-        #clock.tick(60)
         
         events = pygame.event.get()
         for event in events:

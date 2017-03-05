@@ -17,12 +17,12 @@ def ProcessAudioSegment(sound_bank, source_pos, listener_pos):
     ydist = source_pos[1] - listener_pos[1]
     hdist = hypot(fabs(xdist), fabs(ydist))
     
-    
     if ydist >= 0: #Is the sound in front of the listener or behind?
         sound = sound_bank[0]
     else:
-        print(sound_bank)
         sound = sound_bank[1]
+
+    print(sound)
     
     
     if hdist != 0: #Calculates adjustments to sound to create the illusion of three dimensions

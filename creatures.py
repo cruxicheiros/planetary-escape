@@ -2,9 +2,10 @@ from random import randint
 
 
 class AudioSource:
-    def __init__(self, pos):
+    def __init__(self, pos, tile):
         self.pos = pos
-        
+        self.tile = tile
+
     def Move(self, velocity):
         self.pos[0] = self.pos[0] + velocity[0]
         self.pos[1] = self.pos[1] + velocity[1]
@@ -16,19 +17,19 @@ class AudioSource:
         return self.hdist 
         
 class Human(AudioSource):
-    def __init__(self, pos):
-        AudioSource.__init__(self, pos)
+    def __init__(self, pos, tile):
+        AudioSource.__init__(self, pos, tile)
         self.name = name
 
 class Enemy(AudioSource):
-    def __init__(self, pos, name):
-        AudioSource.__init__(self, pos)
+    def __init__(self, pos, tile, name):
+        AudioSource.__init__(self, pos, tile)
         self.name = name
         
         
 class NPC(Human):
-    def __init__(self, pos):
-        Creature.__init__(self, pos)
+    def __init__(self, pos, time):
+        Creature.__init__(self, pos, tile)
         
 """
         
