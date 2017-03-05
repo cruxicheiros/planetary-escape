@@ -6,57 +6,68 @@ class AudioSource:
         self.tile = tile
 
     def ValidatedMove(self, velocity, map):
-            move_to = {'tile' : [self.tile.pos[0], self.tile.pos[1]], 'position' : self.pos}
-
+            new_location = {'tile' : [self.tile.pos[0], self.tile.pos[1]], 'position' : [0, 0]}
             if velocity[1] < 0:
                 if self.pos[1] + velocity[1] >= 0:
-                    move_to['position'][1] = self.pos[1] + velocity[1]
+                    new_location['position'][1] = self.pos[1] + velocity[1]
                 elif self.tile.pos[1] > 0:
-                    move_to['position'][1] = (self.tile.height - velocity[1])
-                    move_to['tile'][1] = self.tile.pos[1] - 1
+                    new_location['position'][1] = (self.tile.height + velocity[1])
+                    new_location['tile'][1] = self.tile.pos[1] - 1
                 else:
                     print('Could not move to that position')
-                    return
+                    return 1
                     
-
             elif velocity[1] > 0:
                 if self.pos[1] + velocity[1] <= self.tile.height - 1:
-                    move_to['position'][1] = self.pos[1] + velocity[1]
+                    new_location['position'][1] = self.pos[1] + velocity[1]
                 elif self.tile.pos[1] < map.height - 1:
-                    move_to['position'][1] = velocity[1] - 1
-                    move_to['tile'][1] = self.tile.pos[1] + 1
+                    new_location['position'][1] = velocity[1] - 1
+                    new_location['tile'][1] = self.tile.pos[1] + 1
                 else:
                     print('Could not move to that position')
-                    return
-            
+                    return 1
+    
+            elif velocity[1] == 0:
+                new_location['position'][1] = self.pos[1]
+                new_location['tile'][1] = self.tile.pos[1]
+
             if velocity[0] > 0:
                 if self.pos[0] + velocity[0] <= self.tile.width - 1:
-                    move_to['position'][0] = self.pos[0] + velocity[0]
+                    new_location['position'][0] = self.pos[0] + velocity[0]
                 elif self.tile.pos[0] < map.width - 1:
-                    move_to['position'][0] = velocity[0] - 1
-                    move_to['tile'][0] = self.tile.pos[0] + 1
+                    new_location['position'][0] = velocity[0] - 1
+                    new_location['tile'][0] = self.tile.pos[0] + 1
                 else:
-                    print('Could not move to that position')
-                    return
+                    return 1
 
+                    print(new_location)
+                
             elif velocity[0] < 0:
                 if self.pos[0] + velocity[0] >= 0:
-                    move_to['position'][0] = self.pos[0] + velocity[0]
+                    new_location['position'][0] = self.pos[0] + velocity[0]
                 elif self.tile.pos[0] > 0:
-                    move_to['position'][0] = velocity[0] - 1
-                    move_to['tile'][0] = self.tile.pos[0] - 1
+                    new_location['position'][0] = map.width + velocity[0]
+                    new_location['tile'][0] = self.tile.pos[0] - 1
                 else:
                     print('Could not move to that position')
-                    return
+                    return 1
 
-            for i in map.tiles[(move_to['tile'][0], move_to['tile'][1])].FieldsAtLocation(move_to['position']):
-                if i.clipping == True:
-                    print('Could not move to that position (clipping)')
-                    return
+            elif velocity[0] == 0:
+                new_location['position'][0] = self.pos[0]
+                new_location['tile'][0] = self.tile.pos[0]
             
-            self.pos = move_to['position']
-            self.tile = map.tiles[(move_to['tile'][0], move_to['tile'][1])]
-
+            print(new_location)
+            
+            for field in map.tiles[(new_location['tile'][0], new_location['tile'][1])].FieldsAtLocation(new_location['position']):
+                if field.clipping == False:
+                    print('Could not move to that position (clipping)')
+                    return 1
+                    
+              
+            print('moving')
+            self.pos = new_location['position']
+            self.tile = map.tiles[(new_location['tile'][0], new_location['tile'][1])]
+            return 0
 
     def Move(self, velocity):
         self.pos[0] = self.pos[0] + velocity[0]

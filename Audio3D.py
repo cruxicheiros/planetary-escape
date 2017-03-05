@@ -12,22 +12,16 @@ SPOKEN_WORD_DIST = 1
 UNITS_TO_FEET_MULTIPLIER = 2.5
 
 
-def ProcessAudioSegment(sound_bank, source_pos, listener_pos):
+def ProcessAudioSegment(sound, source_pos, listener_pos):
     xdist = source_pos[0] - listener_pos[0]
     ydist = source_pos[1] - listener_pos[1]
     hdist = hypot(fabs(xdist), fabs(ydist))
     
-    if ydist >= 0: #Is the sound in front of the listener or behind?
-        sound = sound_bank[0]
-    else:
-        sound = sound_bank[1]
-
-    print(sound)
-    
+    if ydist < 0: #If the sound is behind the listener, invert it.
+        sound = effects.invert_phase(sound)    
     
     if hdist != 0: #Calculates adjustments to sound to create the illusion of three dimensions
-        #vol_sound = effects.low_pass_filter(sound - hdist, 10000 / hdist) #Applies a low-pass filter based on distance & adjusts volume
-        vol_sound = sound - 10*(log10((hdist*2.5)**2))#Uses the Inverse Square Rule to semi-accurately calculate drop in db 
+        vol_sound = sound - 10*(log10((hdist*UNITS_TO_FEET_MULTIPLIER)**2))#Uses the Inverse Square Rule to semi-accurately calculate drop in db 
         panned_sound = vol_sound.pan(degrees(asin(xdist / hdist) / 90)) #Pans sound based on the sine law.
         return(panned_sound)
     else:

@@ -81,7 +81,6 @@ def PlayEventSounds(event, current_palette):
             footstep.play()
             
     if event.type == change_palette_event:
-        
         PlayAmbientSounds(current_palette)
         
 
@@ -90,13 +89,11 @@ def LoadEntitySounds(entities):
     for entity in entities:
         if entity not in entity_sounds:
             entity_sounds[entity.name] = []
-            front_sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name + '\\front')
-            back_sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name + '\\back')
-            
-            for i in range(len(front_sound_names) - 1):
-                front_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\front\\' + front_sound_names[i])
-                back_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\back\\' + back_sound_names[i])
-                entity_sounds[entity.name].append([front_sound, back_sound])
+            sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name)
+          
+            for i in sound_names:
+                new_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\' + i)
+                entity_sounds[entity.name].append(new_sound)
                 
     return entity_sounds
         
@@ -114,7 +111,7 @@ def MainLoop():
     PlayAmbientSounds(current_palette)
     clock = pygame.time.Clock()
 
-    entities = [creatures.Zombie([0, 0], map.tiles[(0, 0)]), creatures.Zombie([3, 3], map.tiles[(3, 3)])]
+    entities = [creatures.Zombie([4, 4], map.tiles[(0, 2)])]
     entity_sounds = LoadEntitySounds(entities)
         
 
@@ -135,7 +132,7 @@ def MainLoop():
             PlayEventSounds(event, current_palette)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    avatar.ValidatedMove([-1, 0], map)
+                    print(avatar.ValidatedMove([-1, 0], map))
                         
                 if event.key == pygame.K_RIGHT:
                     avatar.ValidatedMove([1, 0], map)
