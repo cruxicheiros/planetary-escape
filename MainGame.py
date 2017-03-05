@@ -15,9 +15,14 @@ screen = pygame.display.set_mode((100, 100))
 #A bunch of custom events
 change_palette_event = pygame.USEREVENT + 1
 
-#Mixer Channels
+#Initalize mixer Channels
 ambient_channel = pygame.mixer.Channel(0)
 environmental_channel = pygame.mixer.Channel(1)
+
+#Set up mixer channels
+ambient_channel.set_volume(0.3)
+environmental_channel.set_volume(0.3)
+
 
 #Sound Palette
 
@@ -114,13 +119,12 @@ def PlayAmbientSounds(current_palette):
         
 def MainLoop():    
     map = LoadMap('data')
-    current_tile = map.tiles[(0, 0)]
-    avatar = creatures.AudioSource([0,0], [0,0])
+    avatar = creatures.AudioSource([0,0], map.tiles[(0, 0)])
     current_palette = load_palette('TidalPlainPalette')
     PlayAmbientSounds(current_palette)
     clock = pygame.time.Clock()
 
-    entities = [creatures.Enemy([0, 0], [0, 0], 'zombie'), creatures.Enemy([3, 3], [0, 0], 'zombie')]
+    entities = [creatures.Zombie([0, 0], map.tiles[(0, 0)]), creatures.Zombie([3, 3], map.tiles[(3, 3)])]
     entity_sounds = LoadEntitySounds(entities)
         
 
@@ -129,58 +133,33 @@ def MainLoop():
         
         for entity in entities:
             if randint(1, 10) > 9:
-                absolute_entity_position = ((entity.tile[0]*current_tile.width + entity.pos[0]), (entity.tile[1]*current_tile.height + entity.pos[1]))
-                absolute_avatar_position = ((current_tile.pos[0]*current_tile.width + avatar.pos[0]), (current_tile.pos[1]*current_tile.height + avatar.pos[1]))
+                absolute_entity_position = ((entity.tile.pos[0]*avatar.tile.width + entity.pos[0]), (entity.tile.pos[1]*avatar.tile.height + entity.pos[1]))
+                absolute_avatar_position = ((avatar.tile.pos[0]*avatar.tile.width + avatar.pos[0]), (avatar.tile.pos[1]*avatar.tile.height + avatar.pos[1]))
                 
                 Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), absolute_entity_position, absolute_avatar_position)).play()
             
-        current_fields = GetFieldsAtLocation(current_tile, avatar.pos)
+        current_fields = GetFieldsAtLocation(avatar.tile, avatar.pos)
         
         events = pygame.event.get()
         for event in events:
             PlayEventSounds(event, current_palette)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    if avatar.pos[0] != 0:
-                        avatar.Move([-1, 0])
-                    elif current_tile.pos[0] > 0:
-                        avatar.pos[0] = current_tile.width
-                        current_tile = map.tiles[(current_tile.pos[0] - 1), current_tile.pos[1]]
-                    else:
-                        print('You have reached the left edge of the map.')
-                        
+                    avatar.ValidatedMove([-1, 0], map)
                         
                 if event.key == pygame.K_RIGHT:
-                    if avatar.pos[0] != (current_tile.width - 1):
-                        avatar.Move([1, 0])
-                    elif current_tile.pos[0] < (map.width - 1):
-                        avatar.pos[0] = 0
-                        current_tile = map.tiles[(current_tile.pos[0] + 1), current_tile.pos[1]]
-                    else:
-                        print('You have reached the right edge of the map.')
+                    avatar.ValidatedMove([1, 0], map)
                                         
                 if event.key == pygame.K_UP:
-                    if avatar.pos[1] != 0:
-                        avatar.Move([0, -1])
-                    elif current_tile.pos[1] > 0:
-                        avatar.pos[1] = (current_tile.height - 1)
-                        current_tile = map.tiles[current_tile.pos[0], current_tile.pos[1] - 1]
-                    else:
-                        print('You have reached the top edge of the map.')
+                    avatar.ValidatedMove([0, -1], map)
                 
                 if event.key == pygame.K_DOWN:
-                    if avatar.pos[1] != (current_tile.height - 1):
-                        avatar.Move([0, 1])
-                    elif current_tile.pos[1] < (map.height - 1):
-                        avatar.pos[1] = 0
-                        current_tile = map.tiles[current_tile.pos[0], current_tile.pos[1] + 1]
-                    else:
-                        print('You have reached the bottom edge of the map.')
+                    avatar.ValidatedMove([0, 1], map)
                 
                 if event.key == pygame.K_p:
                     pygame.quit()
                     
-                print(avatar.pos, current_tile.pos, map.width, map.height)
+                print(avatar.pos, avatar.tile.pos, map.width, map.height)
 
                     
                 
