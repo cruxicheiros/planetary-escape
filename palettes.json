@@ -1,25 +1,16 @@
 {
-"TidalPlainPalette" : {
-"AMBIENT" : "waves",
-"ENVIRONMENTAL" : "wind",
+"OutsidePalette" : {
+"AMBIENT" : ["explosions", "outdoor_rain"],
 "FOOTSTEP" : "wet_sand"
 },
 
-"VolcanicPalette" : {
-"AMBIENT" : "fire",
-"ENVIRONMENTAL" : "rumbling",
-"FOOTSTEP" : "rock"
+"ShedPalette" : {
+"AMBIENT" : ["explosions", "indoor_rain"],
+"FOOTSTEP" : "wood"
 },
 
-"PumicePalette" : {
-"AMBIENT" : "wind",
-"ENVIRONMENTAL" : "rumbling",
-"FOOTSTEP" : "gravel"
-},
-
-"IndoorsPalette" : {
-"AMBIENT" : "air_conditioning",
-"ENVIRONMENTAL" : "flourescent_lighting",
+"ShipPalette" : {
+"AMBIENT" : ["air_conditioning", "indoor_rain"],
 "FOOTSTEP" : "tile"
 }
 }

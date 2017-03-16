@@ -43,12 +43,3 @@ def MakeAudioSegment(filename): #Loads sound for playback
         print('Loaded ' + filename)
         return audio_seg
         
-
-
-## testing code below this line
-"""
-for i in [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]]:
-    ReturnSound('roar-01', i, [0, 0])
-    print(i)
-    sleep(3)
-"""
