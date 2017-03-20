@@ -19,6 +19,7 @@ def ProcessAudioSegment(sound, source_pos, listener_pos):
     
     if ydist < 0: #If the sound is behind the listener, invert it.
         sound = effects.invert_phase(sound)    
+        pass
     
     if hdist != 0: #Calculates adjustments to sound to create the illusion of three dimensions
         vol_sound = sound - 10*(log10((hdist*UNITS_TO_FEET_MULTIPLIER)**2))#Uses the Inverse Square Rule to semi-accurately calculate drop in db 
