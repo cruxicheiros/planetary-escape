@@ -49,7 +49,7 @@ def load_palette(palette_name):
     for i in footstep_names:
         footstep = pygame.mixer.Sound(dir_path + '\\SFX\\palette\\footsteps\\' + palette_dict[palette_name]['FOOTSTEP'] + '\\' + i)
         footsteps.append(footstep)
-        
+    
     
     new_palette = palette(palette_name, ambient, footsteps)
     return new_palette
@@ -159,7 +159,9 @@ def MainLoop():
                 absolute_avatar_position = ((avatar.tile.pos[0]*avatar.tile.width + avatar.pos[0]), (avatar.tile.pos[1]*avatar.tile.height + avatar.pos[1]))
                 
                 Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), absolute_entity_position, absolute_avatar_position)).play()
-            
+                
+                entity.behave(avatar)
+                
         current_fields = avatar.tile.FieldsAtLocation(avatar.pos) 
         
 

@@ -18,7 +18,8 @@ def ProcessAudioSegment(sound, source_pos, listener_pos):
     hdist = hypot(fabs(xdist), fabs(ydist))
     
     if ydist < 0: #If the sound is behind the listener, invert it.
-        sound = effects.invert_phase(sound)    
+        sound = effects.invert_phase(sound) 
+        sound = effects.low_pass_filter(sound, 100)
         pass
     
     if hdist != 0: #Calculates adjustments to sound to create the illusion of three dimensions

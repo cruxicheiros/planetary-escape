@@ -1,4 +1,5 @@
 from random import randint
+from math import hypot, fabs, ceil
 
 class AudioSource:
     def __init__(self, pos, tile):
@@ -15,7 +16,7 @@ class AudioSource:
                     new_location['tile'][1] = self.tile.pos[1] - 1
                 else:
                     print('Could not move to that position')
-                    return 1
+                    return False
                     
             elif velocity[1] > 0:
                 if self.pos[1] + velocity[1] <= self.tile.height - 1:
@@ -25,7 +26,7 @@ class AudioSource:
                     new_location['tile'][1] = self.tile.pos[1] + 1
                 else:
                     print('Could not move to that position')
-                    return 1
+                    return False
     
             elif velocity[1] == 0:
                 new_location['position'][1] = self.pos[1]
@@ -38,7 +39,7 @@ class AudioSource:
                     new_location['position'][0] = velocity[0] - 1
                     new_location['tile'][0] = self.tile.pos[0] + 1
                 else:
-                    return 1
+                    return False
 
                     print(new_location)
                 
@@ -50,7 +51,7 @@ class AudioSource:
                     new_location['tile'][0] = self.tile.pos[0] - 1
                 else:
                     print('Could not move to that position')
-                    return 1
+                    return False
 
             elif velocity[0] == 0:
                 new_location['position'][0] = self.pos[0]
@@ -61,13 +62,13 @@ class AudioSource:
             for field in map.tiles[(new_location['tile'][0], new_location['tile'][1])].FieldsAtLocation(new_location['position']):
                 if field.clipping == False:
                     print('Could not move to that position (clipping)')
-                    return 1
+                    return False
                     
               
             print('moving')
             self.pos = new_location['position']
             self.tile = map.tiles[(new_location['tile'][0], new_location['tile'][1])]
-            return 0
+            return True
 
     def Move(self, velocity):
         self.pos[0] = self.pos[0] + velocity[0]
@@ -92,14 +93,34 @@ class Enemy(AudioSource):
 class Zombie(Enemy):
     def __init__(self, pos, tile):
         Enemy.__init__(self, pos, tile, 'zombie')
-    
-    def behave(self, tick):
-        if tick % 20 == 0:
-            pass
+        self.state = "wander"
+        
+    def behave(self, target):
+        if self.state == "wander":
+            if self.sense(target):
+                self.state == "follow"
+                
+        elif self.state == "follow":
+            xdist = self.pos[0] - target.pos[0]
+            ydist = self.pos[1] - target.pos[1]
+            hdist = hypot(fabs(xdist), fabs(ydist))
+            self.ValidatedMove((ceil(xdist/hdist), ceil(ydist/hdist)))
             
-        
-        
-
+            if not self.sense(target):
+                self.state = "lost"
+                
+        elif self.state == "lost":
+            if self.sense(target):
+                self.state = "follow"
+            else:
+                self.state = "wander"
+    
+    def sense(self, target):
+        hdist = hypot(fabs(self.pos[0] - target.pos[0]), fabs(self.pos[1] - target.pos[1]))
+        if hdist > 7:
+            return False
+        else:
+            return True
 """
         
 class Monster(Creature):
