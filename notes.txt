@@ -1,0 +1,3 @@
+-Binaural audio/Phase reversal
+-look up agent-based-model
+-Layer seperation of classes

@@ -80,31 +80,41 @@ class AudioSource:
         self.hdist = hypot(fabs(xdist), fabs(ydist))
         return self.hdist 
         
-class Human(AudioSource):
-    def __init__(self, pos, tile):
-        AudioSource.__init__(self, pos, tile)
-        self.name = name
+        
 
-class Enemy(AudioSource):
+class NamedSource(AudioSource):
     def __init__(self, pos, tile, name):
         AudioSource.__init__(self, pos, tile)
         self.name = name
+            
 
-class Zombie(Enemy):
+class Zombie(NamedSource):
     def __init__(self, pos, tile):
-        Enemy.__init__(self, pos, tile, 'zombie')
+        NamedSource.__init__(self, pos, tile, 'zombie')
         self.state = "wander"
+        print(self.state)
         
-    def behave(self, target):
+    def behave(self, target, map):
         if self.state == "wander":
             if self.sense(target):
-                self.state == "follow"
+                self.state = "follow"
                 
         elif self.state == "follow":
             xdist = self.pos[0] - target.pos[0]
             ydist = self.pos[1] - target.pos[1]
             hdist = hypot(fabs(xdist), fabs(ydist))
-            self.ValidatedMove((ceil(xdist/hdist), ceil(ydist/hdist)))
+
+            try:
+                velocity = (ceil(xdist/hdist), ceil(ydist/hdist))
+                print(velocity)
+            except ZeroDivisionError:
+                print('ZeroDivisionError-', xdist, ydist)
+                self.state = 'kill'
+            else:
+                if velocity == (0,0):
+                    self.state = 'kill'
+                else:
+                    self.ValidatedMove(velocity, map)
             
             if not self.sense(target):
                 self.state = "lost"
@@ -114,6 +124,10 @@ class Zombie(Enemy):
                 self.state = "follow"
             else:
                 self.state = "wander"
+                
+        elif self.state == "kill":
+            self.pos = target.pos
+            self.tile = target.tile
     
     def sense(self, target):
         hdist = hypot(fabs(self.pos[0] - target.pos[0]), fabs(self.pos[1] - target.pos[1]))
@@ -142,6 +156,6 @@ class Monster(Creature):
         self.MakeNoise(sound_name, listener_pos)
         
 """
-class Player(Human):
+class Player(AudioSource):
     def __init__(self, pos):
-        Creature.__init__(self, pos)
+        AudioSource.__init__(self, pos)

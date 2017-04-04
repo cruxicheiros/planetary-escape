@@ -1,7 +1,7 @@
 import os 
 import creatures
 import VectorMaps
-from random import randint, choice, random
+from random import randint, choice, uniform
 import Audio3D
 import json
 import pygame
@@ -17,19 +17,22 @@ change_palette_event = pygame.USEREVENT + 1
 crash_event = pygame.USEREVENT + 2
 interaction_event = pygame.USEREVENT + 3
 
-#TEMPORARY THUD SOUND
-thud_sound = pygame.mixer.Sound(dir_path + '\\SFX\\3d\\interactions\\thud\\thud.wav')
+#Static sound effects
+thud_sound = pygame.mixer.Sound(dir_path + '\\SFX\\static\\thud\\thud.wav')
+takeoff_sound = pygame.mixer.Sound(dir_path + '\\SFX\\static\\takeoff\\takeoff.wav')
+chomp_sound = pygame.mixer.Sound(dir_path + '\\SFX\\static\\chomp\\chomp.wav')
 
 #Initalize mixer Channels
 ambient_channel_0 = pygame.mixer.Channel(0)
 ambient_channel_1 = pygame.mixer.Channel(1)
 avatar_channel = pygame.mixer.Channel(2)
+vocal_channel = pygame.mixer.Channel(3)
 
 #Set up mixer channels
 ambient_channel_0.set_volume(0.3)
 ambient_channel_1.set_volume(0.3)
-
-
+vocal_channel.set_volume(0.1)
+    
 #Sound Palette
 
 with open('palettes.json', 'r') as f: #Dict where data for loading palettes is stored
@@ -54,6 +57,7 @@ def load_palette(palette_name):
     new_palette = palette(palette_name, ambient, footsteps)
     return new_palette
     
+   
 #Map related
 
 
@@ -82,6 +86,7 @@ def PlayEventSounds(event, current_palette):
     if event.type == interaction_event:
         if event.action == 'crash':
             avatar_channel.play(thud_sound)
+            
         elif event.action == 'step':
             footstep = choice(current_palette.footsteps)
             avatar_channel.play(footstep)
@@ -92,17 +97,31 @@ def PlayEventSounds(event, current_palette):
 
 def LoadEntitySounds(entities):
     entity_sounds = {}
-    for entity in entities:
-        if entity.name not in entity_sounds:
-            entity_sounds[entity.name] = []
-            sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + entity.name)
+    for e in entities:
+        if e.name not in entity_sounds:
+            entity_sounds[e.name] = []
+            sound_names = os.listdir(dir_path + '\\SFX\\3d\\entities\\' + e.name)
           
             for i in sound_names:
-                new_sound = Audio3D.MakeAudioSegment('\\3d\\entities\\' + entity.name + '\\' + i)
-                entity_sounds[entity.name].append(new_sound)
+                new_sound = Audio3D.Make3DAudioSegment('\\3d\\entities\\' + e.name + '\\' + i)
+                entity_sounds[e.name].append(new_sound)
                 
     return entity_sounds
-            
+
+# Vocals (eg announcements)
+
+def LoadVocalSounds():
+    vocals = {}
+    sound_names = os.listdir(dir_path + '\\SFX\\3d\\vocals\\')
+  
+    for i in sound_names:
+        new_sound = pygame.mixer.Sound(dir_path + '\\SFX\\3d\\vocals\\' + i)
+        vocals[i] = new_sound
+        
+    print(type(vocals), type(vocals['straggler.wav']))
+    return vocals
+        
+        
 #Play looped sounds
 def PlayAmbientSounds(current_palette):
     ambient_channel_0.play(current_palette.ambient[0], loops = -1)
@@ -119,7 +138,7 @@ def PopulateFields(map, field_name, spawn_chance):
             if field.name == field_name:
                 for row in range(field.dimensions[0]):
                     for col in range(field.dimensions[1]):
-                        if random() < spawn_chance:
+                        if uniform(0, 1) < spawn_chance:
                             entities.append(creatures.Zombie([field.anchor[0] + col, field.anchor[1] + col], map.tiles[key]))
     print(len(entities), 'entities spawned')
     return entities
@@ -146,22 +165,41 @@ def MainLoop():
     PlayAmbientSounds(current_palette)
 
 
-    entities = PopulateFields(map, 'zombie_spawn', 0.01)
+    entities = PopulateFields(map, 'zombie_spawn', 0.005)
+    entities.append(creatures.NamedSource((2, 7), map.tiles[(1, 0)], 'beacon'))
     entity_sounds = LoadEntitySounds(entities)
     
+    vocals = LoadVocalSounds()
     
-    while 1:
+    end_condition_met = False
+    
+    
+    vocal_channel.play(vocals['please_evacuate.wav'])
+    
+    while not end_condition_met:
         clock.tick(30)
         
-        for entity in entities:
-            if random() > 0.95:
-                absolute_entity_position = ((entity.tile.pos[0]*avatar.tile.width + entity.pos[0]), (entity.tile.pos[1]*avatar.tile.height + entity.pos[1]))
-                absolute_avatar_position = ((avatar.tile.pos[0]*avatar.tile.width + avatar.pos[0]), (avatar.tile.pos[1]*avatar.tile.height + avatar.pos[1]))
-                
-                Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[entity.name]), absolute_entity_position, absolute_avatar_position)).play()
-                
-                entity.behave(avatar)
-                
+        for e in entities:     
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    if e.tile.pos == (avatar.tile.pos[0] + i, avatar.tile.pos[1] + j):                       
+                        if uniform(0, 1) > 0.99:
+                            if e.name == "zombie":
+                                e.behave(avatar, map)
+                                print(e.state)
+                                if e.state == 'kill':                                    
+                                    player_alive = False
+                                    end_condition_met = True
+                                    break
+                                
+                            absolute_entity_position = ((e.tile.pos[0]*avatar.tile.width + e.pos[0]), (e.tile.pos[1]*avatar.tile.height + e.pos[1]))
+                            absolute_avatar_position = ((avatar.tile.pos[0]*avatar.tile.width + avatar.pos[0]), (avatar.tile.pos[1]*avatar.tile.height + avatar.pos[1]))
+                            Audio3D.ConvertToPygame(Audio3D.ProcessAudioSegment(choice(entity_sounds[e.name]), absolute_entity_position, absolute_avatar_position)).play()
+
+                                
+                                
+                        break
+                    
         current_fields = avatar.tile.FieldsAtLocation(avatar.pos) 
         
 
@@ -170,32 +208,32 @@ def MainLoop():
             PlayEventSounds(event, current_palette)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    failure = avatar.ValidatedMove([-1, 0], map)
-                    print(failure)
-                    if failure == True:
-                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))                
+                    success = avatar.ValidatedMove([-1, 0], map)
+                    print(success)
+                    if success == True:
+                        pygame.event.post(pygame.event.Event(interaction_event, action='step'))                
                     else:
-                        pygame.event.post(pygame.event.Event(interaction_event, action='step'))
-                if event.key == pygame.K_RIGHT:
-                    failure = avatar.ValidatedMove([1, 0], map)
-                    if failure == True:
                         pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
-                    else:
+                if event.key == pygame.K_RIGHT:
+                    success = avatar.ValidatedMove([1, 0], map)
+                    if success == True:
                         pygame.event.post(pygame.event.Event(interaction_event, action='step'))
+                    else:
+                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
                         
                 if event.key == pygame.K_UP:
-                    failure = avatar.ValidatedMove([0, -1], map)
-                    if failure == True:
-                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
-                    else:
+                    success = avatar.ValidatedMove([0, -1], map)
+                    if success == True:
                         pygame.event.post(pygame.event.Event(interaction_event, action='step'))
+                    else:
+                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
                         
                 if event.key == pygame.K_DOWN:
-                    failure = avatar.ValidatedMove([0, 1], map)
-                    if failure == True:
-                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
-                    else:
+                    success = avatar.ValidatedMove([0, 1], map)
+                    if success == True:
                         pygame.event.post(pygame.event.Event(interaction_event, action='step'))
+                    else:
+                        pygame.event.post(pygame.event.Event(interaction_event, action='crash'))
                         
                 if event.key == pygame.K_p:
                     pygame.quit()
@@ -204,10 +242,23 @@ def MainLoop():
                     current_palette = load_palette(check_palette_zone(current_fields))
                     PlayAmbientSounds(current_palette)
                     
+                    for i in current_fields:
+                        if i.name == 'ship':
+                            player_alive = True
+                            end_condition_met = True
+                    
+                    
                 print(avatar.pos, avatar.tile.pos, map.width, map.height)
                                     
-                    
-                
+        if end_condition_met:
+            if player_alive:
+                vocal_channel.play(takeoff_sound)
+                while vocal_channel.get_busy():
+                    pass
+            else:
+                vocal_channel.play(chomp_sound)
+                while vocal_channel.get_busy():
+                    pass
 
                     
 MainLoop()
