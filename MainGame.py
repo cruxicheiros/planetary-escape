@@ -264,7 +264,8 @@ def Menu():
         
 def MainLoop():
     screen.fill((0,0,0))
-
+    pygame.display.update()
+    
     map = LoadMap('zombie')
     avatar = creatures.AudioSource([3,14], map.tiles[(0, 3)])
     clock = pygame.time.Clock()

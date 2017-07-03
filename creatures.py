@@ -53,12 +53,14 @@ class AudioSource:
                 new_location['position'][0] = self.pos[0]
                 new_location['tile'][0] = self.tile.pos[0]
             
+            print(new_location)
             
             for field in map.tiles[(new_location['tile'][0], new_location['tile'][1])].FieldsAtLocation(new_location['position']):
                 if field.clipping == False:
                     return False
                     
               
+            print('moving')
             self.pos = new_location['position']
             self.tile = map.tiles[(new_location['tile'][0], new_location['tile'][1])]
             return True
@@ -100,11 +102,9 @@ class Zombie(NamedSource):
             hdist = hypot(fabs(xdist), fabs(ydist))
 
             try:
-                velocity = (ceil(xdist/hdist), ceil(ydist/hdist)
-            
+                velocity = (ceil(xdist/hdist), ceil(ydist/hdist))
             except ZeroDivisionError:
                 self.state = 'kill'
-                
             else:
                 if self.pos == target.pos:
                     self.state = 'kill'
