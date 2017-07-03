@@ -15,7 +15,6 @@ class AudioSource:
                     new_location['position'][1] = (self.tile.height + velocity[1])
                     new_location['tile'][1] = self.tile.pos[1] - 1
                 else:
-                    print('Could not move to that position')
                     return False
                     
             elif velocity[1] > 0:
@@ -25,7 +24,6 @@ class AudioSource:
                     new_location['position'][1] = velocity[1] - 1
                     new_location['tile'][1] = self.tile.pos[1] + 1
                 else:
-                    print('Could not move to that position')
                     return False
     
             elif velocity[1] == 0:
@@ -41,7 +39,6 @@ class AudioSource:
                 else:
                     return False
 
-                    print(new_location)
                 
             elif velocity[0] < 0:
                 if self.pos[0] + velocity[0] >= 0:
@@ -50,22 +47,18 @@ class AudioSource:
                     new_location['position'][0] = map.width + velocity[0]
                     new_location['tile'][0] = self.tile.pos[0] - 1
                 else:
-                    print('Could not move to that position')
                     return False
 
             elif velocity[0] == 0:
                 new_location['position'][0] = self.pos[0]
                 new_location['tile'][0] = self.tile.pos[0]
             
-            print(new_location)
             
             for field in map.tiles[(new_location['tile'][0], new_location['tile'][1])].FieldsAtLocation(new_location['position']):
                 if field.clipping == False:
-                    print('Could not move to that position (clipping)')
                     return False
                     
               
-            print('moving')
             self.pos = new_location['position']
             self.tile = map.tiles[(new_location['tile'][0], new_location['tile'][1])]
             return True
@@ -92,7 +85,6 @@ class Zombie(NamedSource):
     def __init__(self, pos, tile):
         NamedSource.__init__(self, pos, tile, 'zombie')
         self.state = "wander"
-        print(self.state)
         
     def behave(self, target, map):
         if self.state == "wander":
@@ -100,18 +92,21 @@ class Zombie(NamedSource):
                 self.state = "follow"
                 
         elif self.state == "follow":
-            xdist = self.pos[0] - target.pos[0]
-            ydist = self.pos[1] - target.pos[1]
+            absolute_self_position = ((self.tile.pos[0]*self.tile.width + self.pos[0]), (self.tile.pos[1]*self.tile.height + self.pos[1]))
+            absolute_target_position = ((target.tile.pos[0]*target.tile.width + target.pos[0]), (target.tile.pos[1]*target.tile.height + target.pos[1]))
+            
+            xdist = absolute_target_position[0] - absolute_self_position[0]
+            ydist = absolute_target_position[1] - absolute_self_position[1]
             hdist = hypot(fabs(xdist), fabs(ydist))
 
             try:
-                velocity = (ceil(xdist/hdist), ceil(ydist/hdist))
-                print(velocity)
+                velocity = (ceil(xdist/hdist), ceil(ydist/hdist)
+            
             except ZeroDivisionError:
-                print('ZeroDivisionError-', xdist, ydist)
                 self.state = 'kill'
+                
             else:
-                if velocity == (0,0):
+                if self.pos == target.pos:
                     self.state = 'kill'
                 else:
                     self.ValidatedMove(velocity, map)
@@ -131,6 +126,7 @@ class Zombie(NamedSource):
     
     def sense(self, target):
         hdist = hypot(fabs(self.pos[0] - target.pos[0]), fabs(self.pos[1] - target.pos[1]))
+
         if hdist > 7:
             return False
         else:
