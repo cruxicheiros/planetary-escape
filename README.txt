@@ -6,6 +6,7 @@
 
 "air_conditioning.wav", originally titled as "air-conditioning_hotel-room.mp3" by geodylabs of Freesound.org. Licensed under the Creative Commons attribution license.
 
+Pygame, a copy of which is located in the 'pygame' folder and is licensed under the GNU Lesser General Public License (LGPL).
 
 Pydub, a copy of which is located in the 'pydub' folder, and is under the following license:
 
