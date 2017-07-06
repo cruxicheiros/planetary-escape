@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['MainGame.py'],
+a = Analysis(['maingame.py'],
              pathex=['C:\\Users\\avell\\Prototypes\\Alpha\\Alpha 1.0'],
              binaries=[],
              datas=[],
@@ -19,7 +19,7 @@ pyz = PYZ(a.pure, a.zipped_data,
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name='MainGame',
+          name='maingame',
           debug=False,
           strip=False,
           upx=True,
@@ -30,4 +30,4 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               name='MainGame')
+               name='maingame')

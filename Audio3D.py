@@ -13,7 +13,7 @@ UNITS_TO_FEET_MULTIPLIER = 2.5 # How long is one step in feet?
 def ProcessAudioSegment(sound, source_pos, listener_pos):
     xdist = source_pos[0] - listener_pos[0]
     ydist = source_pos[1] - listener_pos[1]
-    hdist = hypot(fabs(xdist), fabs(ydist))
+    hdist = hypot(fabs(xdist), fabs(ydist)) #Finds the hypotenuse to get the distance between the sound source and the listener.
     
     if ydist < 0: #If the sound is behind the listener, invert it in the left speaker.
         sound = sound.from_mono_audiosegments(sound, sound) # Converts mono to stereo first

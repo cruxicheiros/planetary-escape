@@ -16,9 +16,8 @@ screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Planetary Escape')
 
 #A bunch of custom events
-change_palette_event = pygame.USEREVENT + 1
-crash_event = pygame.USEREVENT + 2
-interaction_event = pygame.USEREVENT + 3
+change_palette_event = pygame.USEREVENT + 1 #Posted when the user crosses between two palette zones. Triggers switching the ambient noises played.
+interaction_event = pygame.USEREVENT + 2 #Posted when the user interacts with the arrow keys. Used to trigger thud_sound and footstep sfx.
 
 #Static sound effects
 thud_sound = pygame.mixer.Sound(dir_path + '\\SFX\\static\\thud\\thud.wav')
