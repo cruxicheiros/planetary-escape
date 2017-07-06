@@ -100,16 +100,12 @@ class Zombie(NamedSource):
             xdist = absolute_target_position[0] - absolute_self_position[0]
             ydist = absolute_target_position[1] - absolute_self_position[1]
             hdist = hypot(fabs(xdist), fabs(ydist))
-
-            try:
-                velocity = (ceil(xdist/hdist), ceil(ydist/hdist))
-            except ZeroDivisionError:
+           
+            if hdist == 0 and xdist == 0 and ydist == 0:
                 self.state = 'kill'
             else:
-                if self.pos == target.pos:
-                    self.state = 'kill'
-                else:
-                    self.ValidatedMove(velocity, map)
+                velocity = (ceil(xdist/hdist), ceil(ydist/hdist))
+                self.ValidatedMove(velocity, map)
             
             if not self.sense(target):
                 self.state = "lost"
