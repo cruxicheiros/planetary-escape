@@ -156,11 +156,11 @@ def SpawnZombies(map, quantity):
         
         spawn_tile = map.tiles[spawn_tile_pos]
         
-        valid_position = True
+        valid_position = False
         
         for i in spawn_tile.FieldsAtLocation(spawn_pos):
-            if 'ship' in i.name or 'shed' in i.name:
-                valid_position == False
+            if i.name == 'zombie_spawn':
+                valid_position = True
                 
         for i in entities:
             if spawn_tile == i.tile:

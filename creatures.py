@@ -117,8 +117,7 @@ class Zombie(NamedSource):
                 self.state = "wander"
                 
         elif self.state == "kill":
-            self.pos = target.pos
-            self.tile = target.tile
+            pass
     
     def sense(self, target):
         hdist = hypot(fabs(self.pos[0] - target.pos[0]), fabs(self.pos[1] - target.pos[1]))
