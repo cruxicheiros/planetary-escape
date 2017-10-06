@@ -27,13 +27,7 @@ def ProcessAudioSegment(sound, source_pos, listener_pos):
         return(sound)
 
 def ConvertToPygame(audio_seg): #Converts an AudioSegment object to a Pygame mixer sound object.
-    fd, temp_path = mkstemp()    
-    file = open(temp_path, 'wb+')
-    audio_seg.export(temp_path, "wav")
-    file.close()
-    os.close(fd)
-    mix_obj = mixer.Sound(temp_path)
-    os.remove(temp_path)
+    mix_obj = mixer.Sound(audio_seg.raw_data)
     return mix_obj
 
 def MakeAudioSegment(filename): #Loads sound for playback
